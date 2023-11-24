@@ -10,7 +10,7 @@
 a.white-mode, a.white-mode:link, a.white-mode:visited, a.white-mode:active {
   font-family: "Montserrat";
   font-size: 12px;
-  text-decoration: none;        /* background: #212121; */
+  text-decoration: none;
   padding: 4px 8px;
   color: #f7f7f7;
 }

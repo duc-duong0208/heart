@@ -14,7 +14,7 @@ var settings = {
 /*
  * RequestAnimationFrame polyfill by Erik M?ller
  */
-(function() {
+(function () {
   var b = 0;
   var c = ["ms", "moz", "webkit", "o"];
   for (var a = 0; a < c.length && !window.requestAnimationFrame; ++a) {
@@ -24,10 +24,10 @@ var settings = {
       window[c[a] + "CancelRequestAnimationFrame"];
   }
   if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function(h, e) {
+    window.requestAnimationFrame = function (h, e) {
       var d = new Date().getTime();
       var f = Math.max(0, 16 - (d - b));
-      var g = window.setTimeout(function() {
+      var g = window.setTimeout(function () {
         h(d + f);
       }, f);
       b = d + f;
@@ -35,7 +35,7 @@ var settings = {
     };
   }
   if (!window.cancelAnimationFrame) {
-    window.cancelAnimationFrame = function(d) {
+    window.cancelAnimationFrame = function (d) {
       clearTimeout(d);
     };
   }
@@ -44,15 +44,15 @@ var settings = {
 /*
  * Point class
  */
-var Point = (function() {
+var Point = (function () {
   function Point(x, y) {
     this.x = typeof x !== "undefined" ? x : 0;
     this.y = typeof y !== "undefined" ? y : 0;
   }
-  Point.prototype.clone = function() {
+  Point.prototype.clone = function () {
     return new Point(this.x, this.y);
   };
-  Point.prototype.length = function(length) {
+  Point.prototype.length = function (length) {
     if (typeof length == "undefined")
       return Math.sqrt(this.x * this.x + this.y * this.y);
     this.normalize();
@@ -60,7 +60,7 @@ var Point = (function() {
     this.y *= length;
     return this;
   };
-  Point.prototype.normalize = function() {
+  Point.prototype.normalize = function () {
     var length = this.length();
     this.x /= length;
     this.y /= length;
@@ -72,14 +72,14 @@ var Point = (function() {
 /*
  * Particle class
  */
-var Particle = (function() {
+var Particle = (function () {
   function Particle() {
     this.position = new Point();
     this.velocity = new Point();
     this.acceleration = new Point();
     this.age = 0;
   }
-  Particle.prototype.initialize = function(x, y, dx, dy) {
+  Particle.prototype.initialize = function (x, y, dx, dy) {
     this.position.x = x;
     this.position.y = y;
     this.velocity.x = dx;
@@ -88,14 +88,14 @@ var Particle = (function() {
     this.acceleration.y = dy * settings.particles.effect;
     this.age = 0;
   };
-  Particle.prototype.update = function(deltaTime) {
+  Particle.prototype.update = function (deltaTime) {
     this.position.x += this.velocity.x * deltaTime;
     this.position.y += this.velocity.y * deltaTime;
     this.velocity.x += this.acceleration.x * deltaTime;
     this.velocity.y += this.acceleration.y * deltaTime;
     this.age += deltaTime;
   };
-  Particle.prototype.draw = function(context, image) {
+  Particle.prototype.draw = function (context, image) {
     function ease(t) {
       return --t * t * t + 1;
     }
@@ -115,7 +115,7 @@ var Particle = (function() {
 /*
  * ParticlePool class
  */
-var ParticlePool = (function() {
+var ParticlePool = (function () {
   var particles,
     firstActive = 0,
     firstFree = 0,
@@ -124,10 +124,9 @@ var ParticlePool = (function() {
   function ParticlePool(length) {
     // create and populate particle pool
     particles = new Array(length);
-    for (var i = 0; i < particles.length; i++)
-      particles[i] = new Particle();
+    for (var i = 0; i < particles.length; i++) particles[i] = new Particle();
   }
-  ParticlePool.prototype.add = function(x, y, dx, dy) {
+  ParticlePool.prototype.add = function (x, y, dx, dy) {
     particles[firstFree].initialize(x, y, dx, dy);
 
     // handle circular queue
@@ -136,13 +135,12 @@ var ParticlePool = (function() {
     if (firstActive == firstFree) firstActive++;
     if (firstActive == particles.length) firstActive = 0;
   };
-  ParticlePool.prototype.update = function(deltaTime) {
+  ParticlePool.prototype.update = function (deltaTime) {
     var i;
 
     // update active particles
     if (firstActive < firstFree) {
-      for (i = firstActive; i < firstFree; i++)
-        particles[i].update(deltaTime);
+      for (i = firstActive; i < firstFree; i++) particles[i].update(deltaTime);
     }
     if (firstFree < firstActive) {
       for (i = firstActive; i < particles.length; i++)
@@ -151,15 +149,12 @@ var ParticlePool = (function() {
     }
 
     // remove inactive particles
-    while (
-      particles[firstActive].age >= duration &&
-      firstActive != firstFree
-    ) {
+    while (particles[firstActive].age >= duration && firstActive != firstFree) {
       firstActive++;
       if (firstActive == particles.length) firstActive = 0;
     }
   };
-  ParticlePool.prototype.draw = function(context, image) {
+  ParticlePool.prototype.draw = function (context, image) {
     // draw active particles
     if (firstActive < firstFree) {
       for (i = firstActive; i < firstFree; i++)
@@ -177,7 +172,7 @@ var ParticlePool = (function() {
 /*
  * Putting it all together
  */
-(function(canvas) {
+(function (canvas) {
   var context = canvas.getContext("2d"),
     particles = new ParticlePool(settings.particles.length),
     particleRate = settings.particles.length / settings.particles.duration, // particles/sec
@@ -188,15 +183,15 @@ var ParticlePool = (function() {
     return new Point(
       160 * Math.pow(Math.sin(t), 3),
       130 * Math.cos(t) -
-      50 * Math.cos(2 * t) -
-      20 * Math.cos(3 * t) -
-      10 * Math.cos(4 * t) +
-      25
+        50 * Math.cos(2 * t) -
+        20 * Math.cos(3 * t) -
+        10 * Math.cos(4 * t) +
+        25
     );
   }
 
   // creating the particle image using a dummy canvas
-  var image = (function() {
+  var image = (function () {
     var canvas = document.createElement("canvas"),
       context = canvas.getContext("2d");
     canvas.width = settings.particles.size;
@@ -205,11 +200,9 @@ var ParticlePool = (function() {
     function to(t) {
       var point = pointOnHeart(t);
       point.x =
-        settings.particles.size / 2 +
-        (point.x * settings.particles.size) / 350;
+        settings.particles.size / 2 + (point.x * settings.particles.size) / 350;
       point.y =
-        settings.particles.size / 2 -
-        (point.y * settings.particles.size) / 350;
+        settings.particles.size / 2 - (point.y * settings.particles.size) / 350;
       return point;
     }
     // create the path
@@ -224,7 +217,7 @@ var ParticlePool = (function() {
     }
     context.closePath();
     // create the fill
-    context.fillStyle = "#ea80b0";
+    context.fillStyle = "#ff3635";
     context.fill();
     // create the image
     var image = new Image();
@@ -271,7 +264,7 @@ var ParticlePool = (function() {
   window.onresize = onResize;
 
   // delay rendering bootstrap
-  setTimeout(function() {
+  setTimeout(function () {
     onResize();
     render();
   }, 10);
